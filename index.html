@@ -1,0 +1,1258 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171a21">
+<title>TON Play — Telegram Games</title>
+
+<style>
+/* =====================================================
+   TON PLAY — Telegram-inspired interface
+   Один файл: HTML + CSS + JavaScript
+===================================================== */
+:root{
+  --bg:#171a21;
+  --panel:#20242d;
+  --panel2:#272d38;
+  --text:#f4f6fa;
+  --muted:#9ba5b5;
+  --blue:#3390ec;
+  --green:#42d392;
+  --gold:#ffc857;
+  --line:rgba(255,255,255,.09);
+  --radius:17px;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:14px;line-height:1.4;
+  background:
+    radial-gradient(ellipse at 10% 0%,rgba(255,142,75,.13),transparent 40%),
+    radial-gradient(ellipse at 90% 20%,rgba(104,85,220,.12),transparent 40%),
+    linear-gradient(155deg,#171a21,#20212b 50%,#241b24);
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit}
+button{cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--blue);outline-offset:3px
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:active:not(:disabled){transform:scale(.97)}
+#app{max-width:760px;margin:auto;min-height:100vh;padding:16px 14px 105px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;letter-spacing:-.5px}
+.brand-logo{
+  width:39px;height:39px;border-radius:13px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#42b8ff,#7464ff 60%,#b17aff);
+  box-shadow:0 5px 20px #477fff35;font-size:21px
+}
+.balance-pill{
+  display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #ffc85730;
+  border-radius:30px;background:#ffc85712;font-weight:800;color:#ffd16e
+}
+.section{display:none;animation:appear .2s ease}
+.section.active{display:block}
+@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.hero{
+  position:relative;overflow:hidden;padding:22px;border:1px solid var(--line);
+  border-radius:23px;background:linear-gradient(120deg,#3d3050,#29344a 58%,#244c56);
+  margin-bottom:17px
+}
+.hero:after{
+  content:"";position:absolute;width:190px;height:190px;right:-65px;top:-75px;border-radius:50%;
+  background:linear-gradient(135deg,#ffbe5b66,#e56cff30);filter:blur(1px);pointer-events:none
+}
+.eyebrow{color:#c7d7ee;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase}
+.hero h1{font-size:27px;line-height:1.12;letter-spacing:-1px;margin:9px 0}
+.hero p{color:#d1d8e5;max-width:380px;margin:0 0 17px;line-height:1.55}
+.primary,.secondary,.danger,.small-btn{
+  border:0;border-radius:12px;padding:11px 15px;font-weight:750;transition:filter .2s,background .2s
+}
+.primary{background:var(--blue);color:white}
+.primary:hover{filter:brightness(1.12)}
+.secondary{background:#ffffff12;border:1px solid var(--line)}
+.danger{background:#ff62621a;color:#ff9b9b;border:1px solid #ff626230}
+.small-btn{padding:8px 10px;background:#ffffff10;border:1px solid var(--line);font-size:12px}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 2px 12px}
+.heading h2{font-size:17px;margin:0;letter-spacing:-.3px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.games-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.game-card{
+  --accent:#54c7ff;position:relative;overflow:hidden;text-align:left;min-width:0;
+  padding:14px;border-radius:18px;border:1px solid var(--line);
+  background:linear-gradient(145deg,#292e39,#20242d);
+  transition:transform .22s,border-color .22s,box-shadow .22s;
+}
+.game-card:before{
+  content:"";position:absolute;inset:-50%;pointer-events:none;opacity:0;
+  background:linear-gradient(115deg,transparent 38%,var(--accent) 48%,transparent 59%);
+  transform:translateX(-65%) rotate(10deg);transition:opacity .2s
+}
+.game-card:hover{
+  transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 65%,transparent);
+  box-shadow:0 10px 28px color-mix(in srgb,var(--accent) 17%,transparent)
+}
+.game-card:hover:before{opacity:.12;animation:shine .8s ease}
+@keyframes shine{to{transform:translateX(65%) rotate(10deg)}}
+.game-icon{
+  display:grid;place-items:center;width:54px;height:54px;border-radius:17px;
+  background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 27%,#242833),#20242d);
+  border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
+  font-size:28px;margin-bottom:13px;position:relative
+}
+.game-card:hover .game-icon{animation:bounce .4s ease}
+@keyframes bounce{50%{transform:translateY(-5px) rotate(-4deg)}}
+.game-name{font-weight:800;font-size:15px;position:relative}
+.game-desc{font-size:12px;color:var(--muted);margin-top:5px;min-height:33px;position:relative}
+.game-reward{margin-top:12px;font-size:12px;font-weight:800;color:var(--gold);position:relative}
+.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.stat-card{padding:13px 11px;border:1px solid var(--line);border-radius:15px;background:#ffffff07}
+.stat-value{font-size:20px;font-weight:850;letter-spacing:-.5px}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+.quick-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.quick-actions button{padding:12px 5px;border-radius:14px;background:#ffffff08;border:1px solid var(--line);font-size:12px}
+.quick-actions button span{display:block;font-size:20px;margin-bottom:5px}
+.search-wrap{display:flex;gap:8px;margin-bottom:12px}
+.search-wrap input,.field{
+  width:100%;min-width:0;color:var(--text);background:#151820;border:1px solid var(--line);
+  padding:12px 13px;border-radius:13px
+}
+.search-wrap input::placeholder,.field::placeholder{color:#7f8999}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 9px;scrollbar-width:none}
+.chip{white-space:nowrap;border:1px solid var(--line);border-radius:22px;padding:8px 12px;background:#ffffff08;font-size:12px}
+.chip.active{background:#3390ec25;border-color:#3390ec;color:#91c8ff}
+.empty{padding:28px 15px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.panel{background:#ffffff07;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.profile-avatar{
+  width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
+  font-size:29px;background:linear-gradient(135deg,#3c9ef4,#8e64ee);flex-shrink:0
+}
+.field-label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}
+.form-row{display:flex;gap:8px;align-items:center}
+.form-row>*{min-width:0}
+.receipt{
+  --receipt:#4ec6ff;position:relative;overflow:hidden;border:1px solid var(--line);
+  border-left:3px solid var(--receipt);border-radius:14px;background:#ffffff07;padding:13px;margin-bottom:9px
+}
+.receipt-top{display:flex;justify-content:space-between;gap:10px}
+.receipt-title{font-weight:800}
+.receipt-amount{font-weight:850;color:var(--gold);white-space:nowrap}
+.receipt-meta{font-size:11px;color:var(--muted);margin-top:5px}
+.receipt-details{
+  display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+  font-size:12px;color:#d8dfeb;overflow-wrap:anywhere
+}
+.receipt.expanded .receipt-details{display:block}
+.receipt-details div{display:flex;justify-content:space-between;gap:12px;margin:6px 0}
+.receipt-details strong{text-align:right}
+.receipt-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.notice{font-size:12px;color:var(--muted);line-height:1.55}
+#gameScreen{display:none}
+#gameScreen.active{display:block}
+.game-header{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.back-btn{width:40px;height:40px;border-radius:13px;background:#ffffff0c;border:1px solid var(--line);font-size:20px}
+.game-header h2{font-size:19px;margin:0}
+.game-header .muted{font-size:12px}
+.game-stage{
+  --game-a:#2e4665;--game-b:#342949;
+  min-height:315px;position:relative;overflow:hidden;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:20px;border:1px solid var(--line);
+  border-radius:23px;background:radial-gradient(ellipse at 50% 0%,var(--game-a),transparent 70%),linear-gradient(140deg,var(--game-b),#1c2029);
+  text-align:center
+}
+.game-big-icon{font-size:65px;filter:drop-shadow(0 8px 20px #0004);margin-bottom:8px}
+.game-stage h3{font-size:21px;margin:5px 0}
+.game-stage p{color:#c0cad8;max-width:350px;line-height:1.5}
+.game-hud{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.hud-pill{padding:8px 12px;border-radius:20px;background:#ffffff0d;border:1px solid var(--line);font-weight:800;font-size:12px}
+.play-area{width:100%;max-width:390px;min-height:180px;position:relative;margin:12px auto}
+.play-button{border:0;border-radius:50%;width:80px;height:80px;background:linear-gradient(135deg,#51c9ff,#5379ff);font-size:32px;box-shadow:0 7px 24px #348bff35}
+.tap-target{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:20px;border:0;background:linear-gradient(135deg,#ffca61,#ff6c91);font-size:27px;box-shadow:0 7px 22px #ff7c6330}
+.memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:100%;max-width:320px;margin:15px auto}
+.memory-cell{aspect-ratio:1;border-radius:12px;border:1px solid var(--line);background:#ffffff10;font-size:25px}
+.memory-cell.found{background:#42d39222;border-color:#42d392}
+.memory-cell:disabled{opacity:1;cursor:default}
+.math-question{font-size:34px;font-weight:850;margin:15px 0}
+.answer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:300px}
+.answer-btn{padding:13px;border-radius:13px;border:1px solid var(--line);background:#ffffff10;font-weight:800}
+.coin-field{position:relative;width:100%;max-width:360px;height:195px;overflow:hidden;border:1px dashed #ffffff20;border-radius:17px;background:#00000010;margin:12px auto}
+.falling-coin{position:absolute;border:0;background:transparent;font-size:29px;animation:coinFall 3s linear forwards}
+@keyframes coinFall{from{transform:translateY(-35px) rotate(0)}to{transform:translateY(240px) rotate(320deg)}}
+.game-result{display:none;margin-top:15px;text-align:left;width:100%;max-width:390px;padding:15px;border:1px solid #42d39245;border-radius:16px;background:#42d3920d}
+.game-result.show{display:block}
+.bottom-nav{
+  position:fixed;z-index:20;left:50%;bottom:max(10px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);width:min(560px,calc(100% - 24px));
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+  padding:7px;border:1px solid #ffffff16;border-radius:24px;
+  background:rgba(29,32,41,.94);backdrop-filter:blur(20px);
+  box-shadow:0 12px 40px #0005
+}
+.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;
+  border:0;border-radius:17px;background:transparent;color:#9da7b7;font-size:10px;font-weight:700}
+.nav-icon{font-size:20px;line-height:1.2}
+.nav-btn.active{color:#75bcff;background:#3390ec1b}
+.toast{
+  position:fixed;z-index:100;left:50%;bottom:95px;transform:translate(-50%,15px);
+  max-width:calc(100% - 32px);padding:12px 16px;border-radius:14px;
+  background:#2b3442;border:1px solid #ffffff18;box-shadow:0 10px 30px #0005;
+  opacity:0;pointer-events:none;transition:.2s;text-align:center
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-backdrop{display:none;position:fixed;z-index:50;inset:0;background:#0009;align-items:center;justify-content:center;padding:18px}
+.modal-backdrop.show{display:flex}
+.modal{width:min(440px,100%);max-height:80vh;overflow:auto;background:#20242d;border:1px solid var(--line);border-radius:22px;padding:18px}
+.modal h3{margin:0 0 10px}
+.modal-actions{display:flex;gap:8px;margin-top:15px}
+.modal-actions>*{flex:1}
+footer{text-align:center;color:#788395;font-size:10px;padding:23px 0 5px}
+@media(min-width:600px){
+  #app{padding-top:22px}
+  .games-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .hero{padding:27px}
+  .hero h1{font-size:32px}
+}
+@media(max-width:360px){
+  #app{padding-left:10px;padding-right:10px}
+  .games-grid{gap:8px}
+  .game-card{padding:11px}
+  .game-desc{font-size:11px}
+  .stat-value{font-size:17px}
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+  <header class="topline">
+    <div class="brand"><div class="brand-logo">◈</div><span>TON Play</span></div>
+    <button class="balance-pill" data-action="show-balance" aria-label="Показать баланс">🪙 <span id="topBalance">0</span></button>
+  </header>
+
+  <main>
+    <!-- ГЛАВНАЯ -->
+    <section id="page-home" class="section active">
+      <div class="hero">
+        <div class="eyebrow">Игровая экосистема</div>
+        <h1>Играй. Собирай.<br>Получай монеты.</h1>
+        <p>Запускай мини-игры, улучшай результаты и сохраняй чек каждой завершённой игровой сессии.</p>
+        <button class="primary" data-action="go-games">Выбрать игру →</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-value" id="homeBalance">0</div><div class="stat-label">🪙 Баланс</div></div>
+        <div class="stat-card"><div class="stat-value" id="homeGames">0</div><div class="stat-label">🎮 Игры</div></div>
+        <div class="stat-card"><div class="stat-value" id="homeReceipts">0</div><div class="stat-label">🧾 Чеки</div></div>
+      </div>
+
+      <div class="heading"><h2>Популярные игры</h2><button class="small-btn" data-action="go-games">Все игры →</button></div>
+      <div id="featuredGames" class="games-grid"></div>
+
+      <div class="heading"><h2>Быстрые действия</h2></div>
+      <div class="quick-actions">
+        <button data-action="go-receipts"><span>🧾</span>Мои чеки</button>
+        <button data-action="go-profile"><span>👤</span>Профиль</button>
+        <button data-action="daily-bonus"><span>🎁</span>Бонус</button>
+      </div>
+
+      <div class="heading"><h2>Последняя сессия</h2><button class="small-btn" data-action="go-receipts">История</button></div>
+      <div id="latestReceipt"></div>
+    </section>
+
+    <!-- ИГРЫ -->
+    <section id="page-games" class="section">
+      <div class="heading"><h2>🎮 Каталог игр</h2><span class="muted small" id="gamesCount"></span></div>
+      <div class="search-wrap">
+        <input id="gameSearch" type="search" placeholder="Найти игру..." autocomplete="off">
+        <button class="secondary" data-action="clear-search">Сброс</button>
+      </div>
+      <div id="gameFilters" class="chips">
+        <button class="chip active" data-filter="all">Все</button>
+        <button class="chip" data-filter="arcade">Аркады</button>
+        <button class="chip" data-filter="logic">Логика</button>
+        <button class="chip" data-filter="speed">Скорость</button>
+      </div>
+      <div id="allGames" class="games-grid"></div>
+      <div id="gamesEmpty" class="empty" hidden>Игры не найдены. Попробуй изменить поиск.</div>
+    </section>
+
+    <!-- ЧЕКИ -->
+    <section id="page-receipts" class="section">
+      <div class="heading"><h2>🧾 История чеков</h2><span id="receiptCount" class="muted small">0</span></div>
+      <div class="panel">
+        <div class="row"><div><strong>Все игровые сессии</strong><div class="notice">Чеки хранятся в этом браузере</div></div><button class="small-btn" data-action="export-receipts">Экспорт JSON</button></div>
+      </div>
+      <div class="search-wrap">
+        <input id="receiptSearch" type="search" placeholder="Поиск по игре или номеру чека">
+        <button class="secondary" data-action="clear-receipt-search">Сброс</button>
+      </div>
+      <div id="receiptList"></div>
+      <div id="receiptsEmpty" class="empty" hidden>Пока нет чеков. Заверши любую игру, чтобы создать первый.</div>
+    </section>
+
+    <!-- ПРОФИЛЬ -->
+    <section id="page-profile" class="section">
+      <div class="heading"><h2>👤 Мой профиль</h2></div>
+      <div class="panel">
+        <div class="row" style="justify-content:flex-start">
+          <div class="profile-avatar" id="profileAvatar">👤</div>
+          <div><div id="profileName" style="font-size:19px;font-weight:800">Игрок</div><div class="muted small" id="profileId">Локальный профиль</div></div>
+        </div>
+        <label class="field-label" for="nameInput">Имя пользователя</label>
+        <input id="nameInput" class="field" maxlength="28" placeholder="Введите имя">
+        <label class="field-label" for="avatarSelect">Аватар</label>
+        <select id="avatarSelect" class="field">
+          <option value="👤">👤 Стандартный</option>
+          <option value="🦊">🦊 Лиса</option>
+          <option value="🐸">🐸 Лягушка</option>
+          <option value="🐼">🐼 Панда</option>
+          <option value="👾">👾 Игрок</option>
+          <option value="🚀">🚀 Космос</option>
+          <option value="💎">💎 Кристалл</option>
+          <option value="🧩">🧩 Головоломка</option>
+        </select>
+        <button class="primary" style="width:100%;margin-top:14px" data-action="save-profile">Сохранить профиль</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-value" id="profileBalance">0</div><div class="stat-label">🪙 Монеты</div></div>
+        <div class="stat-card"><div class="stat-value" id="profileGames">0</div><div class="stat-label">🎮 Сессии</div></div>
+        <div class="stat-card"><div class="stat-value" id="profileBest">0</div><div class="stat-label">⭐ Лучший счёт</div></div>
+      </div>
+
+      <div class="heading"><h2>Настройки</h2></div>
+      <div class="panel">
+        <div class="row"><div><strong>Звуковые эффекты</strong><div class="notice">Звук коротких сигналов в играх</div></div><input id="soundToggle" type="checkbox" style="width:22px;height:22px;accent-color:#3390ec"></div>
+        <div class="row" style="margin-top:17px"><div><strong>Уведомления</strong><div class="notice">Сообщать о новых чеках</div></div><input id="notifyToggle" type="checkbox" style="width:22px;height:22px;accent-color:#3390ec"></div>
+      </div>
+
+      <div class="panel">
+        <strong>Локальные данные</strong>
+        <p class="notice">Сброс удалит монеты, профиль, бонусы и историю чеков на этом устройстве. Действие нельзя отменить.</p>
+        <button class="danger" data-action="confirm-reset">Сбросить прогресс</button>
+      </div>
+    </section>
+
+    <!-- ЭКРАН ИГРЫ -->
+    <section id="gameScreen">
+      <div class="game-header">
+        <button class="back-btn" data-action="leave-game" aria-label="Назад">‹</button>
+        <div style="flex:1"><h2 id="activeGameTitle">Игра</h2><div class="muted" id="activeGameDesc"></div></div>
+        <button class="small-btn" data-action="go-receipts">🧾 Чеки</button>
+      </div>
+
+      <div class="game-stage" id="gameStage">
+        <div id="gameIntro">
+          <div class="game-big-icon" id="introIcon">🎮</div>
+          <h3 id="introTitle">Название игры</h3>
+          <p id="introText">Описание игры</p>
+          <button class="primary" data-action="start-game">▶ Начать игру</button>
+        </div>
+
+        <div id="gameLive" style="display:none;width:100%">
+          <div class="game-hud">
+            <div class="hud-pill">⭐ Счёт: <span id="liveScore">0</span></div>
+            <div class="hud-pill">⏱ <span id="liveTime">15</span> сек</div>
+            <div class="hud-pill">🪙 +<span id="liveCoins">0</span></div>
+          </div>
+          <div id="playArea" class="play-area"></div>
+          <button class="secondary" data-action="finish-early">Завершить сессию</button>
+        </div>
+
+        <div id="gameResult" class="game-result">
+          <div style="font-size:27px;margin-bottom:5px">🏁</div>
+          <strong id="resultTitle">Игра завершена</strong>
+          <p id="resultText" class="notice"></p>
+          <div class="modal-actions">
+            <button class="primary" data-action="restart-game">↻ Ещё раз</button>
+            <button class="secondary" data-action="result-receipt">🧾 Открыть чек</button>
+          </div>
+          <button class="secondary" style="width:100%;margin-top:8px" data-action="go-games">К другим играм</button>
+        </div>
+      </div>
+      <p class="notice" style="margin:12px 3px">Демо-режим: монеты и чеки сохраняются локально. Это не реальные выплаты и не транзакции блокчейна TON.</p>
+    </section>
+  </main>
+
+  <footer>TON Play · Демоверсия · Локальное сохранение</footer>
+</div>
+
+<nav class="bottom-nav" aria-label="Основная навигация">
+  <button class="nav-btn active" data-page="home"><span class="nav-icon">⌂</span>Главная</button>
+  <button class="nav-btn" data-page="games"><span class="nav-icon">🎮</span>Игры</button>
+  <button class="nav-btn" data-page="receipts"><span class="nav-icon">🧾</span>Чеки</button>
+  <button class="nav-btn" data-page="profile"><span class="nav-icon">👤</span>Профиль</button>
+</nav>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Подтверждение</h3>
+    <div id="modalBody" class="notice"></div>
+    <div class="modal-actions">
+      <button id="modalCancel" class="secondary">Отмена</button>
+      <button id="modalConfirm" class="primary">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* =====================================================
+   1. ДАННЫЕ ИГР
+===================================================== */
+const GAMES = [
+  {id:"coin",name:"Лови монеты",icon:"🪙",desc:"Лови падающие монеты за время раунда.",category:"arcade",duration:15,reward:2,color:"#ffc857",rules:"Нажимай на падающие монеты. Каждая пойманная монета увеличивает счёт."},
+  {id:"memory",name:"Память",icon:"🧠",desc:"Открой все пары одинаковых символов.",category:"logic",duration:60,reward:3,color:"#b18cff",rules:"Открывай карточки и запоминай символы. Найди все пары, чтобы завершить игру."},
+  {id:"reaction",name:"Реакция",icon:"⚡",desc:"Нажми на кнопку 8 раз как можно быстрее.",category:"speed",duration:20,reward:2,color:"#ff8e74",rules:"Нажимай на большую кнопку. Заверши восемь нажатий."},
+  {id:"target",name:"Поймай цель",icon:"🎯",desc:"Попадай по перемещающейся цели.",category:"speed",duration:15,reward:3,color:"#ff7096",rules:"Нажимай на цель, пока не закончился таймер."},
+  {id:"math",name:"Быстрый счёт",icon:"➗",desc:"Решай примеры на время.",category:"logic",duration:20,reward:4,color:"#61d7bc",rules:"Выбирай правильный ответ. За верный ответ начисляются очки."},
+  {id:"tap",name:"Тап-спринт",icon:"👆",desc:"Сделай как можно больше нажатий.",category:"arcade",duration:10,reward:2,color:"#6fa8ff",rules:"Нажимай на кнопку столько раз, сколько успеешь."}
+];
+
+const STORAGE_KEY = "tonplay_demo_v3";
+
+/* =====================================================
+   2. СОСТОЯНИЕ И ЛОКАЛЬНОЕ СОХРАНЕНИЕ
+===================================================== */
+function defaultState(){
+  return {
+    balance:0,
+    totalGames:0,
+    profile:{name:"Игрок",avatar:"👤"},
+    receipts:[],
+    dailyBonusDate:"",
+    sound:true,
+    notifications:true,
+    bestScore:0,
+    receiptSequence:0
+  };
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return defaultState();
+    const parsed=JSON.parse(raw);
+    const base=defaultState();
+    return {
+      ...base,...parsed,
+      profile:{...base.profile,...(parsed.profile||{})},
+      receipts:Array.isArray(parsed.receipts)?parsed.receipts:[]
+    };
+  }catch(error){
+    console.warn("Не удалось прочитать сохранение:",error);
+    return defaultState();
+  }
+}
+
+let state=loadState();
+let currentPage="home";
+let selectedFilter="all";
+let activeGame=null;
+let gameRun=null;
+let gameTimer=null;
+let gameInterval=null;
+let actionTimers=[];
+let lastReceiptId=null;
+let pendingConfirm=null;
+let toastTimer=null;
+let soundContext=null;
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  }catch(error){
+    console.error("Не удалось сохранить данные:",error);
+    showToast("Не удалось сохранить данные браузера.");
+  }
+}
+
+const $=id=>document.getElementById(id);
+const safeNumber=n=>Number.isFinite(Number(n))?Number(n):0;
+const escapeHTML=value=>String(value??"").replace(/[&<>"']/g,char=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[char]));
+
+function formatDate(value){
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return "Дата неизвестна";
+  return date.toLocaleString("ru-RU",{dateStyle:"short",timeStyle:"short"});
+}
+function makeId(){
+  return "TP-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,7).toUpperCase();
+}
+function showToast(message){
+  $("toast").textContent=message;
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2600);
+}
+function playSound(frequency=600){
+  if(!state.sound)return;
+  try{
+    soundContext=soundContext||new(window.AudioContext||window.webkitAudioContext)();
+    const oscillator=soundContext.createOscillator();
+    const gain=soundContext.createGain();
+    oscillator.frequency.value=frequency;
+    oscillator.type="sine";
+    gain.gain.value=.04;
+    oscillator.connect(gain);
+    gain.connect(soundContext.destination);
+    oscillator.start();
+    oscillator.stop(soundContext.currentTime+.07);
+  }catch(error){/* звук может быть недоступен в браузере */}
+}
+
+/* =====================================================
+   3. НАВИГАЦИЯ
+===================================================== */
+function navigate(page){
+  if(!["home","games","receipts","profile"].includes(page))return;
+  if(gameRun && !gameRun.finished && page!=="home" && page!=="games" && page!=="receipts" && page!=="profile"){
+    return;
+  }
+  currentPage=page;
+  document.querySelectorAll(".section").forEach(el=>el.classList.remove("active"));
+  $("gameScreen").classList.remove("active");
+  $("gameScreen").style.display="none";
+  const target=$("page-"+page);
+  if(target)target.classList.add("active");
+
+  document.querySelectorAll(".nav-btn").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.page===page);
+  });
+
+  if(page==="home")renderHome();
+  if(page==="games")renderGames();
+  if(page==="receipts")renderReceipts();
+  if(page==="profile")renderProfile();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function openGame(id){
+  const game=GAMES.find(item=>item.id===id);
+  if(!game){showToast("Игра не найдена.");return;}
+  if(gameRun && !gameRun.finished){
+    showToast("Сначала заверши текущую игровую сессию.");
+    return;
+  }
+  activeGame=game;
+  currentPage="game";
+  document.querySelectorAll(".section").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(el=>el.classList.remove("active"));
+  $("gameScreen").style.display="block";
+  $("gameScreen").classList.add("active");
+  $("activeGameTitle").textContent=game.name;
+  $("activeGameDesc").textContent=game.category==="logic"?"Логика":game.category==="speed"?"Скорость":"Аркада";
+  $("introIcon").textContent=game.icon;
+  $("introTitle").textContent=game.name;
+  $("introText").textContent=game.rules;
+  $("gameStage").style.setProperty("--game-a",game.color+"40");
+  $("gameStage").style.setProperty("--game-b","#272331");
+  $("gameIntro").style.display="block";
+  $("gameLive").style.display="none";
+  $("gameResult").classList.remove("show");
+  $("playArea").innerHTML="";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function leaveGame(){
+  if(gameRun && !gameRun.finished){
+    confirmAction(
+      "Завершить текущую игру?",
+      "Текущая сессия будет завершена, результат сохранится в чеке.",
+      ()=>finishGame(true)
+    );
+    return;
+  }
+  navigate("games");
+}
+
+function clearGameTimers(){
+  clearInterval(gameTimer);
+  clearInterval(gameInterval);
+  gameTimer=null;
+  gameInterval=null;
+  actionTimers.forEach(timer=>clearTimeout(timer));
+  actionTimers=[];
+}
+
+function scheduleAction(callback,delay){
+  const timer=setTimeout(callback,delay);
+  actionTimers.push(timer);
+  return timer;
+}
+
+/* =====================================================
+   4. ОТРИСОВКА ИГР И РАЗДЕЛОВ
+===================================================== */
+function gameCardHTML(game){
+  return `<button class="game-card" style="--accent:${game.color}" data-action="open-game" data-id="${game.id}">
+    <div class="game-icon">${game.icon}</div>
+    <div class="game-name">${escapeHTML(game.name)}</div>
+    <div class="game-desc">${escapeHTML(game.desc)}</div>
+    <div class="game-reward">🪙 ${game.reward} за очко</div>
+  </button>`;
+}
+
+function renderHome(){
+  $("topBalance").textContent=state.balance;
+  $("homeBalance").textContent=state.balance;
+  $("homeGames").textContent=state.totalGames;
+  $("homeReceipts").textContent=state.receipts.length;
+  $("featuredGames").innerHTML=GAMES.slice(0,4).map(gameCardHTML).join("");
+  const latest=state.receipts[0];
+  $("latestReceipt").innerHTML=latest?receiptHTML(latest,false):'<div class="empty">Заверши игру — здесь появится первый чек.</div>';
+}
+
+function renderGames(){
+  const query=$("gameSearch").value.trim().toLowerCase();
+  const filtered=GAMES.filter(game=>{
+    const matchesFilter=selectedFilter==="all"||game.category===selectedFilter;
+    const matchesQuery=(game.name+" "+game.desc+" "+game.category).toLowerCase().includes(query);
+    return matchesFilter&&matchesQuery;
+  });
+  $("allGames").innerHTML=filtered.map(gameCardHTML).join("");
+  $("gamesCount").textContent=filtered.length+" из "+GAMES.length;
+  $("gamesEmpty").hidden=filtered.length>0;
+  document.querySelectorAll("[data-filter]").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.filter===selectedFilter);
+  });
+}
+
+function receiptHTML(receipt,expanded=false){
+  const game=GAMES.find(item=>item.id===receipt.gameId);
+  const color=receipt.color||(game&&game.color)||"#4ec6ff";
+  const id=escapeHTML(receipt.id);
+  const metrics=receipt.metrics||{};
+  return `<article class="receipt ${expanded?"expanded":""}" style="--receipt:${color}" data-receipt="${id}">
+    <div class="receipt-top">
+      <div>
+        <div class="receipt-title">${escapeHTML(receipt.gameName||"Игровая сессия")}</div>
+        <div class="receipt-meta">${escapeHTML(receipt.id)} · ${formatDate(receipt.createdAt)}</div>
+      </div>
+      <div class="receipt-amount">+${safeNumber(receipt.coins)} 🪙</div>
+    </div>
+    <div class="receipt-meta">Счёт: ${safeNumber(receipt.score)} · ${safeNumber(receipt.stars)} ⭐ · ${safeNumber(receipt.duration)} сек.</div>
+    <div class="receipt-details">
+      <div><span>Статус</span><strong>${escapeHTML(receipt.status||"Завершено")}</strong></div>
+      <div><span>Очки</span><strong>${safeNumber(receipt.score)}</strong></div>
+      <div><span>Начислено</span><strong>+${safeNumber(receipt.coins)} монет</strong></div>
+      <div><span>Баланс после игры</span><strong>${safeNumber(receipt.balanceAfter)} 🪙</strong></div>
+      <div><span>Длительность</span><strong>${safeNumber(receipt.duration)} сек.</strong></div>
+      <div><span>Метрики</span><strong>${escapeHTML(Object.entries(metrics).map(([key,value])=>key+": "+value).join("; ")||"Нет")}</strong></div>
+      <div><span>Сеть</span><strong>${escapeHTML(receipt.network||"Local Demo")}</strong></div>
+      <div><span>Блок</span><strong>${escapeHTML(receipt.block||"Не применимо")}</strong></div>
+      <div><span>Демо-хеш</span><strong>${escapeHTML(receipt.hash||"Не применимо")}</strong></div>
+      <div><span>Примечание</span><strong>Локальный чек, не транзакция TON</strong></div>
+    </div>
+    <div class="receipt-actions">
+      <button class="small-btn" data-action="toggle-receipt" data-id="${id}">${expanded?"Свернуть":"Подробнее"}</button>
+      <button class="small-btn" data-action="copy-receipt" data-id="${id}">Копировать</button>
+      <button class="small-btn" data-action="download-receipt" data-id="${id}">Скачать JSON</button>
+    </div>
+  </article>`;
+}
+
+function renderReceipts(){
+  const query=$("receiptSearch").value.trim().toLowerCase();
+  const receipts=state.receipts.filter(receipt=>
+    (receipt.id+" "+receipt.gameName).toLowerCase().includes(query)
+  );
+  $("receiptCount").textContent=state.receipts.length+" всего";
+  $("receiptList").innerHTML=receipts.map(receipt=>receiptHTML(receipt,receipt.id===lastReceiptId)).join("");
+  $("receiptsEmpty").hidden=receipts.length>0;
+}
+
+function renderProfile(){
+  $("topBalance").textContent=state.balance;
+  $("profileName").textContent=state.profile.name;
+  $("profileAvatar").textContent=state.profile.avatar;
+  $("nameInput").value=state.profile.name;
+  $("avatarSelect").value=state.profile.avatar;
+  $("profileId").textContent="Локальный профиль · "+(state.profile.id||"TONP-"+makeStableProfileId());
+  $("profileBalance").textContent=state.balance;
+  $("profileGames").textContent=state.totalGames;
+  $("profileBest").textContent=state.bestScore;
+  $("soundToggle").checked=state.sound;
+  $("notifyToggle").checked=state.notifications;
+}
+function makeStableProfileId(){
+  if(!state.profile.id){
+    state.profile.id="TONP-"+Math.random().toString(36).slice(2,9).toUpperCase();
+    saveState();
+  }
+  return state.profile.id;
+}
+function renderAll(){
+  $("topBalance").textContent=state.balance;
+  renderHome();
+  renderGames();
+  renderReceipts();
+  renderProfile();
+}
+
+/* =====================================================
+   5. ЗАПУСК ИГРОВОЙ СЕССИИ
+===================================================== */
+function startGame(){
+  if(!activeGame){showToast("Сначала выбери игру.");return;}
+  if(gameRun&&!gameRun.finished){showToast("Игра уже запущена.");return;}
+  clearGameTimers();
+
+  gameRun={
+    sessionId:makeId(),
+    gameId:activeGame.id,
+    startedAt:Date.now(),
+    duration:activeGame.duration,
+    timeLeft:activeGame.duration,
+    score:0,
+    taps:0,
+    found:0,
+    misses:0,
+    correct:0,
+    wrong:0,
+    finished:false,
+    memoryValues:[],
+    memoryOpen:[],
+    memoryLocked:false,
+    reactionTarget:8,
+    targetHits:0,
+    spawned:0
+  };
+
+  $("gameIntro").style.display="none";
+  $("gameLive").style.display="block";
+  $("gameResult").classList.remove("show");
+  $("liveScore").textContent="0";
+  $("liveTime").textContent=gameRun.timeLeft;
+  $("liveCoins").textContent="0";
+  $("playArea").innerHTML="";
+  playSound(650);
+  setupGameBoard();
+
+  // Общий таймер, не зависит от конкретной игры.
+  gameTimer=setInterval(()=>{
+    if(!gameRun||gameRun.finished)return;
+    gameRun.timeLeft--;
+    $("liveTime").textContent=Math.max(0,gameRun.timeLeft);
+    if(gameRun.timeLeft<=0)finishGame(false);
+  },1000);
+}
+
+function setScore(value){
+  if(!gameRun||gameRun.finished)return;
+  gameRun.score=Math.max(0,Math.floor(value));
+  $("liveScore").textContent=gameRun.score;
+  $("liveCoins").textContent=gameRun.score*activeGame.reward;
+}
+
+function addScore(value=1){
+  if(!gameRun||gameRun.finished)return;
+  setScore(gameRun.score+value);
+  playSound(700+Math.min(500,gameRun.score*10));
+}
+
+/* =====================================================
+   6. ИГРОВЫЕ МЕХАНИКИ
+===================================================== */
+function setupGameBoard(){
+  const area=$("playArea");
+  area.innerHTML="";
+
+  if(activeGame.id==="tap"){
+    area.innerHTML='<button class="play-button" data-action="game-tap">👆</button><p class="notice">Нажимай как можно быстрее!</p>';
+    return;
+  }
+
+  if(activeGame.id==="reaction"){
+    gameRun.reactionReady=false;
+    area.innerHTML='<div style="padding:10px"><div style="font-size:42px">⚡</div><p>Нажми на кнопку 8 раз</p><button class="play-button" data-action="game-reaction">⚡</button><p class="notice" id="reactionProgress">0 / 8</p></div>';
+    return;
+  }
+
+  if(activeGame.id==="target"){
+    area.innerHTML='<div class="notice">Попадай по движущейся цели</div><button class="tap-target" id="movingTarget" data-action="game-target">🎯</button>';
+    moveTarget();
+    gameInterval=setInterval(moveTarget,850);
+    return;
+  }
+
+  if(activeGame.id==="coin"){
+    area.innerHTML='<div class="notice">Нажимай на монеты, пока они падают</div><div class="coin-field" id="coinField"></div>';
+    spawnCoin();
+    gameInterval=setInterval(spawnCoin,680);
+    return;
+  }
+
+  if(activeGame.id==="memory"){
+    const symbols=["🍒","🍋","🍇","🍉","🍒","🍋","🍇","🍉"];
+    const shuffled=[...symbols,...symbols].sort(()=>Math.random()-.5);
+    gameRun.memoryValues=shuffled;
+    area.innerHTML='<div class="notice">Найди 8 пар одинаковых символов</div><div class="memory-grid" id="memoryGrid"></div>';
+    $("memoryGrid").innerHTML=shuffled.map((symbol,index)=>
+      `<button class="memory-cell" data-action="memory-flip" data-index="${index}" aria-label="Карточка ${index+1}">?</button>`
+    ).join("");
+    return;
+  }
+
+  if(activeGame.id==="math"){
+    nextMathQuestion();
+  }
+}
+
+function spawnCoin(){
+  if(!gameRun||gameRun.finished||activeGame.id!=="coin")return;
+  const field=$("coinField");
+  if(!field)return;
+  if(field.childElementCount>8)return;
+  const coin=document.createElement("button");
+  coin.className="falling-coin";
+  coin.textContent=Math.random()>.18?"🪙":"💎";
+  coin.style.left=(4+Math.random()*83)+"%";
+  coin.style.top="-35px";
+  coin.style.animationDuration=(1.8+Math.random()*1.1)+"s";
+  coin.setAttribute("data-action","game-coin");
+  coin.dataset.value=coin.textContent==="💎"?"3":"1";
+  field.appendChild(coin);
+  gameRun.spawned++;
+  scheduleAction(()=>coin.remove(),3200);
+}
+
+function moveTarget(){
+  if(!gameRun||gameRun.finished)return;
+  const target=$("movingTarget");
+  const area=$("playArea");
+  if(!target||!area)return;
+  const maxX=Math.max(0,area.clientWidth-target.offsetWidth);
+  const maxY=Math.max(0,area.clientHeight-target.offsetHeight-20);
+  target.style.left=Math.floor(Math.random()*maxX)+"px";
+  target.style.top=Math.floor(Math.random()*maxY+10)+"px";
+  target.style.transform="none";
+}
+
+function nextMathQuestion(){
+  if(!gameRun||gameRun.finished)return;
+  const a=1+Math.floor(Math.random()*15);
+  const b=1+Math.floor(Math.random()*12);
+  const operator=Math.random()>.5?"+":"−";
+  const answer=operator==="+"?a+b:a-b;
+  const options=new Set([answer]);
+  while(options.size<4)options.add(answer+Math.floor(Math.random()*11)-5);
+  const choices=[...options].sort(()=>Math.random()-.5);
+  $("playArea").innerHTML=`
+    <div class="math-question">${a} ${operator} ${b} = ?</div>
+    <div class="answer-grid">${choices.map(value=>
+      `<button class="answer-btn" data-action="math-answer" data-answer="${value}" data-correct="${answer}">${value}</button>`
+    ).join("")}</div>
+    <p class="notice">Правильные ответы: ${gameRun.correct}</p>`;
+}
+
+function handleMemoryFlip(index,button){
+  if(!gameRun||gameRun.finished||gameRun.memoryLocked)return;
+  if(gameRun.memoryOpen.includes(index))return;
+  if(button.classList.contains("found"))return;
+
+  button.textContent=gameRun.memoryValues[index];
+  gameRun.memoryOpen.push(index);
+  playSound(500);
+
+  if(gameRun.memoryOpen.length===2){
+    const [first,second]=gameRun.memoryOpen;
+    const buttons=$("memoryGrid").children;
+    if(gameRun.memoryValues[first]===gameRun.memoryValues[second]){
+      buttons[first].classList.add("found");
+      buttons[second].classList.add("found");
+      buttons[first].disabled=true;
+      buttons[second].disabled=true;
+      gameRun.found+=2;
+      gameRun.correct++;
+      addScore(3);
+      gameRun.memoryOpen=[];
+      if(gameRun.found===gameRun.memoryValues.length){
+        finishGame(false);
+      }
+    }else{
+      gameRun.misses++;
+      gameRun.memoryLocked=true;
+      scheduleAction(()=>{
+        if(!gameRun||gameRun.finished)return;
+        buttons[first].textContent="?";
+        buttons[second].textContent="?";
+        gameRun.memoryOpen=[];
+        gameRun.memoryLocked=false;
+      },650);
+    }
+  }
+}
+
+/* =====================================================
+   7. ЗАВЕРШЕНИЕ И ЧЕК
+===================================================== */
+function finishGame(early=false){
+  if(!gameRun||gameRun.finished)return;
+  gameRun.finished=true;
+  clearGameTimers();
+
+  const elapsed=Math.max(0,Math.round((Date.now()-gameRun.startedAt)/1000));
+  const coins=Math.max(0,gameRun.score*activeGame.reward);
+  const stars=gameRun.score>=15?5:gameRun.score>=10?4:gameRun.score>=6?3:gameRun.score>=3?2:gameRun.score>0?1:0;
+
+  state.balance+=coins;
+  state.totalGames++;
+  state.bestScore=Math.max(state.bestScore,gameRun.score);
+  state.receiptSequence++;
+
+  const receipt={
+    id:"TP-"+String(state.receiptSequence).padStart(6,"0")+"-"+gameRun.sessionId.slice(-5),
+    sessionId:gameRun.sessionId,
+    gameId:gameRun.gameId,
+    gameName:activeGame.name,
+    createdAt:new Date().toISOString(),
+    status:early?"Завершено досрочно":"Завершено",
+    score:gameRun.score,
+    coins,
+    stars,
+    duration:elapsed,
+    balanceAfter:state.balance,
+    color:activeGame.color,
+    network:"LOCAL DEMO",
+    block:"DEMO-"+Math.floor(Date.now()/1000),
+    hash:"0x"+Array.from({length:32},()=>Math.floor(Math.random()*16).toString(16)).join(""),
+    metrics:{
+      "Нажатия":gameRun.taps,
+      "Верные ответы":gameRun.correct,
+      "Ошибки":gameRun.wrong,
+      "Промахи":gameRun.misses,
+      "Цели":gameRun.targetHits
+    },
+    note:"Локальный демонстрационный чек. Не является транзакцией TON."
+  };
+
+  // Один чек на одну завершённую сессию.
+  state.receipts.unshift(receipt);
+  state.receipts=state.receipts.slice(0,500);
+  lastReceiptId=receipt.id;
+  saveState();
+  renderAll();
+
+  $("gameLive").style.display="none";
+  $("gameResult").classList.add("show");
+  $("resultTitle").textContent="Сессия завершена · "+stars+" ⭐";
+  $("resultText").textContent=`Счёт: ${gameRun.score}. Начислено ${coins} монет. Баланс: ${state.balance}. Чек ${receipt.id} сохранён.`;
+  showToast(state.notifications?"Игра завершена. Чек создан.":"Игра завершена.");
+  playSound(800);
+}
+
+function getReceipt(id){
+  return state.receipts.find(receipt=>receipt.id===id);
+}
+
+function receiptText(receipt){
+  return [
+    "TON PLAY — ДЕМО-ЧЕК",
+    "Номер: "+receipt.id,
+    "Игра: "+receipt.gameName,
+    "Дата: "+formatDate(receipt.createdAt),
+    "Статус: "+receipt.status,
+    "Счёт: "+receipt.score,
+    "Начислено: "+receipt.coins+" монет",
+    "Звёзды: "+receipt.stars,
+    "Длительность: "+receipt.duration+" сек.",
+    "Баланс после игры: "+receipt.balanceAfter,
+    "Сеть: "+receipt.network,
+    "Демо-блок: "+receipt.block,
+    "Демо-хеш: "+receipt.hash,
+    "Внимание: локальный чек, не транзакция TON."
+  ].join("\n");
+}
+
+async function copyText(text){
+  try{
+    if(navigator.clipboard&&window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+    }else{
+      const textarea=document.createElement("textarea");
+      textarea.value=text;
+      textarea.style.position="fixed";
+      textarea.style.opacity="0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok=document.execCommand("copy");
+      textarea.remove();
+      if(!ok)throw new Error("Copy failed");
+    }
+    showToast("Скопировано в буфер обмена.");
+  }catch(error){
+    showToast("Не удалось скопировать. Попробуй открыть сайт через HTTPS.");
+  }
+}
+
+function downloadJSON(filename,data){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download=filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+/* =====================================================
+   8. ПРОФИЛЬ, БОНУС, МОДАЛЬНЫЕ ОКНА
+===================================================== */
+function saveProfile(){
+  const name=$("nameInput").value.trim().slice(0,28);
+  const avatar=$("avatarSelect").value;
+  if(!name){
+    showToast("Введи имя пользователя.");
+    $("nameInput").focus();
+    return;
+  }
+  state.profile.name=name;
+  state.profile.avatar=avatar;
+  saveState();
+  renderProfile();
+  showToast("Профиль сохранён.");
+}
+
+function claimDailyBonus(){
+  const today=new Date().toLocaleDateString("en-CA");
+  if(state.dailyBonusDate===today){
+    showToast("Бонус за сегодня уже получен.");
+    return;
+  }
+  state.dailyBonusDate=today;
+  state.balance+=10;
+  saveState();
+  renderAll();
+  showToast("Ежедневный бонус: +10 монет.");
+}
+
+function confirmAction(title,message,onConfirm){
+  $("modalTitle").textContent=title;
+  $("modalBody").textContent=message;
+  $("modalBackdrop").classList.add("show");
+  pendingConfirm=onConfirm;
+}
+function closeModal(){
+  $("modalBackdrop").classList.remove("show");
+  pendingConfirm=null;
+}
+function resetAllData(){
+  clearGameTimers();
+  state=defaultState();
+  gameRun=null;
+  activeGame=null;
+  lastReceiptId=null;
+  saveState();
+  closeModal();
+  $("gameSearch").value="";
+  $("receiptSearch").value="";
+  selectedFilter="all";
+  navigate("home");
+  showToast("Локальный прогресс сброшен.");
+}
+
+/* =====================================================
+   9. ОБРАБОТЧИКИ КНОПОК
+   Единый делегированный обработчик для динамических кнопок.
+===================================================== */
+document.addEventListener("click",event=>{
+  const pageButton=event.target.closest("[data-page]");
+  if(pageButton){
+    navigate(pageButton.dataset.page);
+    return;
+  }
+
+  const filterButton=event.target.closest("[data-filter]");
+  if(filterButton){
+    selectedFilter=filterButton.dataset.filter;
+    renderGames();
+    return;
+  }
+
+  const button=event.target.closest("[data-action]");
+  if(!button)return;
+
+  const action=button.dataset.action;
+  const id=button.dataset.id;
+
+  switch(action){
+    case "show-balance":
+      showToast("Текущий баланс: "+state.balance+" монет.");
+      break;
+    case "go-games":
+      navigate("games");
+      break;
+    case "go-receipts":
+      navigate("receipts");
+      break;
+    case "go-profile":
+      navigate("profile");
+      break;
+    case "open-game":
+      openGame(id);
+      break;
+    case "clear-search":
+      $("gameSearch").value="";
+      selectedFilter="all";
+      renderGames();
+      break;
+    case "clear-receipt-search":
+      $("receiptSearch").value="";
+      renderReceipts();
+      break;
+    case "daily-bonus":
+      claimDailyBonus();
+      break;
+    case "save-profile":
+      saveProfile();
+      break;
+    case "start-game":
+      startGame();
+      break;
+    case "leave-game":
+      leaveGame();
+      break;
+    case "finish-early":
+      confirmAction("Завершить игру?","Результат будет сохранён, а начисление рассчитано по набранным очкам.",()=>finishGame(true));
+      break;
+    case "restart-game":
+      if(activeGame)openGame(activeGame.id);
+      break;
+    case "result-receipt":
+      navigate("receipts");
+      break;
+    case "game-tap":
+      if(gameRun&&!gameRun.finished){
+        gameRun.taps++;
+        addScore(1);
+      }
+      break;
+    case "game-reaction":
+      if(gameRun&&!gameRun.finished){
+        gameRun.taps++;
+        addScore(1);
+        $("reactionProgress").textContent=Math.min(8,gameRun.taps)+" / 8";
+        if(gameRun.taps>=8)finishGame(false);
+      }
+      break;
+    case "game-target":
+      if(gameRun&&!gameRun.finished){
+        gameRun.targetHits++;
+        addScore(1);
+        moveTarget();
+      }
+      break;
+    case "game-coin":
+      if(gameRun&&!gameRun.finished){
+        const value=safeNumber(button.dataset.value)||1;
+        gameRun.taps++;
+        addScore(value);
+        button.remove();
+      }
+      break;
+    case "memory-flip":
+      handleMemoryFlip(Number(button.dataset.index),button);
+      break;
+    case "math-answer":
+      if(gameRun&&!gameRun.finished){
+        const chosen=Number(button.dataset.answer);
+        const correct=Number(button.dataset.correct);
+        if(chosen===correct){
+          gameRun.correct++;
+          addScore(1);
+          playSound(850);
+        }else{
+          gameRun.wrong++;
+          playSound(250);
+        }
+        nextMathQuestion();
+      }
+      break;
+    case "toggle-receipt":{
+      const receipt=button.closest(".receipt");
+      if(receipt)receipt.classList.toggle("expanded");
+      button.textContent=receipt&&receipt.classList.contains("expanded")?"Свернуть":"Подробнее";
+      break;
+    }
+    case "copy-receipt":{
+      const receipt=getReceipt(id);
+      if(receipt)copyText(receiptText(receipt));
+      else showToast("Чек не найден.");
+      break;
+    }
+    case "download-receipt":{
+      const receipt=getReceipt(id);
+      if(receipt)downloadJSON(receipt.id+".json",receipt);
+      else showToast("Чек не найден.");
+      break;
+    }
+    case "export-receipts":
+      downloadJSON("ton-play-receipts.json",{
+        exportedAt:new Date().toISOString(),
+        demo:true,
+        balance:state.balance,
+        receipts:state.receipts
+      });
+      break;
+    case "confirm-reset":
+      confirmAction("Сбросить весь прогресс?","Баланс, профиль, бонусы и все чеки будут удалены из локального сохранения.",resetAllData);
+      break;
+  }
+});
+
+/* Поиск обновляется при вводе. */
+$("gameSearch").addEventListener("input",renderGames);
+$("receiptSearch").addEventListener("input",renderReceipts);
+
+/* Настройки сохраняются сразу при переключении. */
+$("soundToggle").addEventListener("change",event=>{
+  state.sound=event.target.checked;
+  saveState();
+  showToast(state.sound?"Звуковые эффекты включены.":"Звуковые эффекты выключены.");
+});
+$("notifyToggle").addEventListener("change",event=>{
+  state.notifications=event.target.checked;
+  saveState();
+  showToast(state.notifications?"Уведомления включены.":"Уведомления выключены.");
+});
+
+/* Модальное подтверждение. */
+$("modalCancel").addEventListener("click",closeModal);
+$("modalConfirm").addEventListener("click",()=>{
+  const callback=pendingConfirm;
+  closeModal();
+  if(typeof callback==="function")callback();
+});
+$("modalBackdrop").addEventListener("click",event=>{
+  if(event.target===$("modalBackdrop"))closeModal();
+});
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"){
+    if($("modalBackdrop").classList.contains("show"))closeModal();
+    else if(currentPage==="game")leaveGame();
+  }
+});
+
+/* =====================================================
+   10. ИНИЦИАЛИЗАЦИЯ
+===================================================== */
+renderAll();
+navigate("home");
+</script>
+</body>
+</html>
